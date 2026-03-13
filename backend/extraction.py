@@ -8,8 +8,29 @@ import logging
 from vision.captioner import caption_image
 import re
 import numpy as np
+import os
+from vision.groq_captioner import GroqVisionCaptioner
 
 logger = logging.getLogger(__name__)
+
+async def get_image_caption(image_path: str) -> str:
+    """Get caption using Groq or BLIP fallback"""
+
+    groq_key = os.getenv("GROQ_API_KEY")
+    use_groq = os.getenv("USE_GROQ_VISION", "true").lower() == "true"
+
+    if groq_key and use_groq:
+        try:
+            captioner = GroqVisionCaptioner(groq_key)
+            caption = await captioner.caption_image(image_path)
+            logger.info(f"✅ Groq caption generated")
+            return caption
+        except Exception as e:
+            logger.warning(f"⚠️ Groq failed, falling back to BLIP: {e}")
+
+    from vision.captioner import generate_caption
+    caption = await generate_caption(image_path)
+    return caption
 
 
 class PDFExtractor:
@@ -186,7 +207,7 @@ class PDFExtractor:
 
                     # Only caption real diagrams and avoid pages with heavy text
                     if self._is_probable_diagram(width, height) and len(page_text) <= 2000:
-                        caption = caption_image(str(image_path))
+                        caption = await get_image_caption(str(image_path))
 
                     images_data.append({
                         "page_num": page_num + 1,
