@@ -60,14 +60,16 @@ services:
     volumes:
       - ./backend:/app
       - ./data/documents:/documents
-      - hf-cache:/root/.cache/huggingface
+      - hf-cache:/root/.cache/huggingface  # Persistent model cache
     environment:
       DATABASE_URL: postgresql+asyncpg://documind:documind_password@postgres:5432/documind
       REDIS_URL: redis://redis:6379
       OLLAMA_BASE_URL: http://ollama:11434
       HF_HOME: /root/.cache/huggingface
-      #GROQ_API_KEY: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      GROQ_API_KEY: ${GROQ_API_KEY:-}  # Load from .env file
+      USE_GROQ_VISION: "true"
       TRANSFORMERS_VERBOSITY: error
+      TRANSFORMERS_OFFLINE: "0"  # Allow downloading models
     depends_on:
       postgres:
         condition: service_healthy

@@ -12,7 +12,7 @@ class EmbeddingGenerator:
     Uses sentence-transformers for semantic similarity
     """
     
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, model_name: str = "BAAI/bge-base-en-v1.5"):
         """
         Initialize embedding model
         

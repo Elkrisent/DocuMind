@@ -26,7 +26,13 @@ MANIFEST
 # ============================================================================
 # Virtual environments
 # ============================================================================
+# Environment variables (IMPORTANT: Contains secrets!)
 
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.*
 .env
 .venv/
 venv/
