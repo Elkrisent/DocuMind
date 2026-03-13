@@ -1,0 +1,59 @@
+# -------------------------------
+# FastAPI API stack
+# -------------------------------
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+aiofiles==23.2.1
+
+# -------------------------------
+# Database
+# -------------------------------
+sqlalchemy==2.0.23
+asyncpg==0.29.0
+redis==5.0.1
+
+# -------------------------------
+# PDF Processing
+# -------------------------------
+PyMuPDF==1.23.8
+pdf2image==1.16.3
+Pillow==10.1.0
+
+# -------------------------------
+# OCR
+# -------------------------------
+pytesseract==0.3.10
+
+# -------------------------------
+# Core ML/AI stack (install first, compatible versions)
+# -------------------------------
+numpy==1.24.3
+torch==2.1.2
+tokenizers==0.15.2
+safetensors==0.4.2
+huggingface-hub==0.20.3
+
+# -------------------------------
+# Vision model (diagram captioning)
+# -------------------------------
+transformers==4.36.2
+accelerate==0.25.0
+
+# -------------------------------
+# Vector Embeddings & Search
+# -------------------------------
+sentence-transformers==2.3.1
+faiss-cpu==1.7.4
+
+# -------------------------------
+# Text Processing
+# -------------------------------
+nltk==3.8.1
+tiktoken==0.5.2
+langchain-text-splitters==0.0.1
+
+# LLM Integration
+httpx==0.25.2
+groq==0.9.0

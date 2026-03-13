@@ -1,0 +1,97 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: documind-postgres
+    environment:
+      POSTGRES_USER: documind
+      POSTGRES_PASSWORD: documind_password
+      POSTGRES_DB: documind
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U documind"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: documind-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Ollama LLM Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: documind-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    # Optional: enable GPU (uncomment if you have NVIDIA GPU)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: documind-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./data/documents:/documents
+      - hf-cache:/root/.cache/huggingface
+    environment:
+      DATABASE_URL: postgresql+asyncpg://documind:documind_password@postgres:5432/documind
+      REDIS_URL: redis://redis:6379
+      OLLAMA_BASE_URL: http://ollama:11434
+      HF_HOME: /root/.cache/huggingface
+      #GROQ_API_KEY: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+      TRANSFORMERS_VERBOSITY: error
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+networks:
+  default:
+    name: documind-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  hf-cache:
+    driver: local
+  ollama_data:
+    driver: local
